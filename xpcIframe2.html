@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>iframe2</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+    <style>
+    body { background: #dff0d8; }
+    .container { margin-top: 30px; }
+    .container .row div.panel { margin-top: 10px; }
+    .container .row div.panel .panel-title { font-size: 12px; }
+    .container .row div.panel .panel-body { font-size: 12px; }    
+    .btn-default { font-size: 12px; }
+    </style>
+    <script src="XPC.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row featurette">
+        <div class="col-md-5">
+            <div class="well well-sm">
+                B页面当前域名：<script>document.writeln(location.protocol + '//' + location.host);</script>
+            </div>            
+            <form class="form-inline" role="form" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="message" class="sr-only">消息体：</label>
+                    <input type="text" class="form-control"  id="message" placeholder="输入将要发送的消息">
+                </div>
+                <input type="button" value="发送到主窗口" class="btn btn-default" id="sendButton">
+                <div class="panel panel-danger">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">B页面接受的消息列表</h3>
+                    </div>
+                    <div id="output" class="panel-body"></div>
+                </div>
+            </form>    
+        </div>
+    </div>    
+</div>
+<script>
+    var $ = function(id) {
+        return document.getElementById(id);
+    }
+    var xpc = new XPC('XPC_IFRAME2');
+    xpc.on('message', function(data) {
+        var p = document.createElement('p');
+        var text = document.createTextNode(data.msg);
+        p.appendChild(text);
+        $('output').appendChild(p);
+    });
+
+    $('sendButton').onclick = function() {
+        var message = $('message').value;
+        message = '来自B页面的消息 : ' + message;
+        xpc.send(message);
+    };
+</script>
+</body>
+</html>

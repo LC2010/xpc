@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>IframeSandbox</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+    <style>
+    .container { margin-top: 50px; }
+    .container .row div.panel { margin-top: 10px; }
+    .container .row div.panel .panel-title { font-size: 12px; }
+    .container .row div.panel .panel-body { font-size: 12px; }
+    .btn-default { font-size: 12px; }
+    </style>
+    <script src="XPC.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="row featurette">
+        <div class="col-md-9">
+            <p>
+                <iframe name="XPC_IFRAME1" src="http://192.168.1.102:4000/xpcIframe1.html" style="margin-right:40px" width="400" height="300" ></iframe>
+                <iframe name="XPC_IFRAME2" src="http://192.168.1.102:4000/xpcIframe2.html" width="400" height="300"></iframe>
+            </p>
+            <form class="form-inline" role="form" onsubmit="return false;">
+                <div class="well well-sm">
+                    主页面当前域名：<script>document.write(location.protocol + '//' + location.host);</script>
+                </div>              
+                <div class="form-group">
+                    <label for="message" class="sr-only">消息体：</label>
+                    <input type="text" class="form-control"  id="message" placeholder="输入将要发送的消息">
+                </div>
+                <input type="button" value="发送到所有" class="btn btn-default" id="sendButton">
+                <input type="button" value="发送到A页面" class="btn btn-default" id="sendIframe1">
+                <input type="button" value="发送到B页面" class="btn btn-default" id="sendIframe2">
+                <div class="panel panel-danger">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">主窗口接受的消息列表</h3>
+                    </div>
+                    <div id="output" class="panel-body"></div>          
+                </div>
+            </form>    
+        </div>
+    </div>    
+</div>
+<script>
+var $ = function(id) {
+    return document.getElementById(id);
+}   
+
+var xpc = new XPC();
+xpc.addTarget(['XPC_IFRAME1', 'XPC_IFRAME2']);
+
+xpc.on('message', function(data) {
+        var p = document.createElement('p');
+        var text = document.createTextNode(data.msg);
+        p.appendChild(text);
+        $('output').appendChild(p);
+});
+
+$('sendButton').onclick = function() {
+    var message = $('message').value;
+    message = '来自主页面的消息 : ' + message;
+    xpc.send(message);
+};
+
+$('sendIframe1').onclick = function() {
+    var message = $('message').value;
+    message = '来自主页面的消息 : ' + message;
+    xpc.targets['XPC_IFRAME1'].send(message);
+};
+
+$('sendIframe2').onclick = function() {
+    var message = $('message').value;
+    message = '来自主页面的消息 : ' + message;
+    xpc.targets['XPC_IFRAME2'].send(message);
+};
+</script>
+</body>
+</html>
